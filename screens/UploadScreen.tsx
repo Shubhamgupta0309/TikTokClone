@@ -7,11 +7,19 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import CameraScreen from './CameraScreen';
+import GalleryPicker from './GalleryPicker';
+import VideoEditor from './VideoEditor';
 
 const UploadScreen: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
+  const [showVideoEditor, setShowVideoEditor] = useState(false);
+  const [selectedVideoUri, setSelectedVideoUri] = useState<string | null>(null);
 
   const uploadOptions = [
     { 
@@ -33,14 +41,14 @@ const UploadScreen: React.FC = () => {
       icon: 'musical-notes', 
       title: 'Add Music', 
       subtitle: 'Browse music library',
-      comingSoon: true
+      comingSoon: false
     },
     { 
       id: 'effects', 
       icon: 'color-palette', 
       title: 'Effects & Filters', 
       subtitle: 'Add filters and effects',
-      comingSoon: true
+      comingSoon: false
     },
     { 
       id: 'live', 
@@ -62,7 +70,7 @@ const UploadScreen: React.FC = () => {
     if (option.comingSoon) {
       Alert.alert(
         'Coming Soon!',
-        `${option.title} will be available in Phase 6. Stay tuned!`,
+        `${option.title} will be available in a future update. Stay tuned!`,
         [{ text: 'OK' }]
       );
       return;
@@ -72,28 +80,65 @@ const UploadScreen: React.FC = () => {
     
     switch (option.id) {
       case 'record':
-        Alert.alert(
-          'Camera Access',
-          'This feature will open your camera to record a new video. Camera integration will be implemented in Phase 6.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Continue', onPress: () => console.log('Camera recording...') }
-          ]
-        );
+        setShowCamera(true);
         break;
       case 'gallery':
+        setShowGallery(true);
+        break;
+      case 'music':
         Alert.alert(
-          'Gallery Access',
-          'This feature will let you select videos from your gallery. Gallery integration will be implemented in Phase 6.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Continue', onPress: () => console.log('Gallery selection...') }
-          ]
+          'Music Library',
+          'Music selection is now available in the video editor after recording or selecting a video!',
+          [{ text: 'OK' }]
+        );
+        break;
+      case 'effects':
+        Alert.alert(
+          'Effects & Filters',
+          'Effects and filters are now available in the video editor after recording or selecting a video!',
+          [{ text: 'OK' }]
         );
         break;
       default:
         console.log(`Selected: ${option.title}`);
     }
+  };
+
+  const handleVideoRecorded = (videoUri: string) => {
+    setShowCamera(false);
+    setSelectedVideoUri(videoUri);
+    setShowVideoEditor(true);
+  };
+
+  const handleVideoSelected = (videoUri: string) => {
+    setShowGallery(false);
+    setSelectedVideoUri(videoUri);
+    setShowVideoEditor(true);
+  };
+
+  const handleVideoPublished = (videoData: any) => {
+    setShowVideoEditor(false);
+    setSelectedVideoUri(null);
+    setSelectedOption(null);
+    
+    // In a real app, you would save this to Firebase/database
+    console.log('Video published:', videoData);
+  };
+
+  const handleCloseCamera = () => {
+    setShowCamera(false);
+    setSelectedOption(null);
+  };
+
+  const handleCloseGallery = () => {
+    setShowGallery(false);
+    setSelectedOption(null);
+  };
+
+  const handleCloseVideoEditor = () => {
+    setShowVideoEditor(false);
+    setSelectedVideoUri(null);
+    setSelectedOption(null);
   };
 
   return (
@@ -176,8 +221,35 @@ const UploadScreen: React.FC = () => {
       </View>
 
       <View style={styles.phaseContainer}>
-        <Text style={styles.phaseText}>Phase 5: Enhanced Upload Features 📹</Text>
+        <Text style={styles.phaseText}>Phase 6: Upload & Creation 🎬</Text>
       </View>
+
+      {/* Camera Modal */}
+      <Modal visible={showCamera} animationType="slide" presentationStyle="fullScreen">
+        <CameraScreen 
+          onClose={handleCloseCamera}
+          onVideoRecorded={handleVideoRecorded}
+        />
+      </Modal>
+
+      {/* Gallery Modal */}
+      <Modal visible={showGallery} animationType="slide" presentationStyle="fullScreen">
+        <GalleryPicker 
+          onClose={handleCloseGallery}
+          onVideoSelected={handleVideoSelected}
+        />
+      </Modal>
+
+      {/* Video Editor Modal */}
+      {selectedVideoUri && (
+        <Modal visible={showVideoEditor} animationType="slide" presentationStyle="fullScreen">
+          <VideoEditor 
+            videoUri={selectedVideoUri}
+            onClose={handleCloseVideoEditor}
+            onPublish={handleVideoPublished}
+          />
+        </Modal>
+      )}
     </SafeAreaView>
   );
 };

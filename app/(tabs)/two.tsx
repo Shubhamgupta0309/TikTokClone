@@ -481,7 +481,7 @@ export default function DiscoveryScreen() {
       )}
 
       <View style={styles.phaseContainer}>
-        <Text style={styles.phaseText}>Phase 5: Enhanced Content Discovery �</Text>
+        <Text style={styles.phaseText}>Phase 6: Enhanced Content Discovery 🚀</Text>
       </View>
     </SafeAreaView>
   );
