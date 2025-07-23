@@ -10,12 +10,14 @@ import {
   FlatList,
   Dimensions,
   ScrollView,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { sampleVideos, VideoData } from '../../data/videos';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import AnalyticsDashboard from '../../screens/AnalyticsDashboard';
 
 const { width } = Dimensions.get('window');
 const ITEM_SIZE = (width - 4) / 3; // 3 columns with small gaps
@@ -39,6 +41,7 @@ export default function ProfileScreen() {
     likes: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -157,9 +160,17 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
-        <TouchableOpacity onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="white" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity 
+            style={styles.analyticsButton}
+            onPress={() => setShowAnalytics(true)}
+          >
+            <Ionicons name="analytics" size={20} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.content}>
@@ -224,8 +235,17 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.phaseContainer}>
-        <Text style={styles.phaseText}>Phase 6: Enhanced User Profiles 🎭</Text>
+        <Text style={styles.phaseText}>Phase 7: Advanced Features 🚀</Text>
       </View>
+
+      {/* Analytics Modal */}
+      <Modal
+        visible={showAnalytics}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <AnalyticsDashboard onClose={() => setShowAnalytics(false)} />
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -248,6 +268,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '600',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  analyticsButton: {
+    padding: 4,
   },
   content: {
     flex: 1,

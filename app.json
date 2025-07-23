@@ -60,6 +60,14 @@
         {
           "photosPermission": "Allow TikTok Clone to access your photos to upload videos."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#ff3040",
+          "sounds": ["./assets/sounds/notification.wav"]
+        }
       ]
     ],
     "experiments": {

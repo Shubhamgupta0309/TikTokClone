@@ -221,7 +221,7 @@ const UploadScreen: React.FC = () => {
       </View>
 
       <View style={styles.phaseContainer}>
-        <Text style={styles.phaseText}>Phase 6: Upload & Creation 🎬</Text>
+        <Text style={styles.phaseText}>Phase 7: Advanced Features 🚀</Text>
       </View>
 
       {/* Camera Modal */}
