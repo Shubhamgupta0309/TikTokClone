@@ -14,7 +14,9 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withSequence,
+  withTiming,
   runOnJS,
+  interpolate,
 } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -26,6 +28,8 @@ interface VideoPlayerProps {
   onMuteToggle: () => void;
   onLike: () => void;
   isLiked: boolean;
+  onComment: () => void;
+  onShare: () => void;
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -35,13 +39,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   onMuteToggle,
   onLike,
   isLiked,
+  onComment,
+  onShare,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [showMuteIndicator, setShowMuteIndicator] = useState(false);
   const videoRef = useRef<Video>(null);
   const scale = useSharedValue(1);
+  const doubleTapHeart = useSharedValue(0);
+  const lastTap = useRef<number>(0);
+  const muteIndicatorOpacity = useSharedValue(0);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -67,6 +77,29 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   };
 
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+
+    if (now - lastTap.current < DOUBLE_TAP_DELAY) {
+      // Double tap detected - trigger like
+      doubleTapHeart.value = withSequence(
+        withTiming(1, { duration: 0 }),
+        withSpring(1.2, { damping: 10 }),
+        withTiming(0, { duration: 1000 })
+      );
+      runOnJS(onLike)();
+    } else {
+      // Single tap - toggle play/pause after delay to check for double tap
+      setTimeout(() => {
+        if (Date.now() - lastTap.current >= DOUBLE_TAP_DELAY) {
+          runOnJS(handlePlayPause)();
+        }
+      }, DOUBLE_TAP_DELAY);
+    }
+    lastTap.current = now;
+  };
+
   const handleLike = () => {
     scale.value = withSequence(
       withSpring(1.2),
@@ -75,9 +108,44 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     runOnJS(onLike)();
   };
 
+  const handleMuteToggle = () => {
+    setShowMuteIndicator(true);
+    onMuteToggle();
+  };
+
   const animatedHeartStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+
+  const doubleTapHeartStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(doubleTapHeart.value, [0, 1], [0, 1]);
+    const scale = interpolate(doubleTapHeart.value, [0, 1, 1.2], [0.5, 1, 1.2]);
+    
+    return {
+      opacity,
+      transform: [{ scale }],
+    };
+  });
+
+  const muteIndicatorStyle = useAnimatedStyle(() => ({
+    opacity: muteIndicatorOpacity.value,
+  }));
+
+  useEffect(() => {
+    if (showMuteIndicator) {
+      muteIndicatorOpacity.value = withSequence(
+        withTiming(1, { duration: 150 }),
+        withTiming(1, { duration: 800 }),
+        withTiming(0, { duration: 150 })
+      );
+      
+      const timer = setTimeout(() => {
+        setShowMuteIndicator(false);
+      }, 1100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showMuteIndicator, muteIndicatorOpacity]);
 
   const onPlaybackStatusUpdate = (status: any) => {
     if (status.isLoaded) {
@@ -90,7 +158,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.videoContainer} onPress={handlePlayPause}>
+      <Pressable style={styles.videoContainer} onPress={handleDoubleTap}>
         <Video
           ref={videoRef}
           source={{ uri }}
@@ -117,12 +185,30 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <Ionicons name="play" size={60} color="white" />
           </View>
         )}
+
+        {/* Double tap heart animation */}
+        <Animated.View style={[styles.doubleTapHeart, doubleTapHeartStyle]}>
+          <Ionicons name="heart" size={80} color="#ff3040" />
+        </Animated.View>
+
+        {/* Mute indicator */}
+        {showMuteIndicator && (
+          <Animated.View style={[styles.muteIndicator, muteIndicatorStyle]}>
+            <View style={styles.muteIndicatorContainer}>
+              <Ionicons 
+                name={isMuted ? 'volume-mute' : 'volume-high'} 
+                size={30} 
+                color="white" 
+              />
+            </View>
+          </Animated.View>
+        )}
       </Pressable>
 
       {/* Controls */}
       <View style={styles.controls}>
         {/* Mute button */}
-        <TouchableOpacity style={styles.controlButton} onPress={onMuteToggle}>
+        <TouchableOpacity style={styles.controlButton} onPress={handleMuteToggle}>
           <Ionicons
             name={isMuted ? 'volume-mute' : 'volume-high'}
             size={24}
@@ -139,6 +225,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               color={isLiked ? '#ff3040' : 'white'}
             />
           </Animated.View>
+        </TouchableOpacity>
+
+        {/* Comment button */}
+        <TouchableOpacity style={styles.controlButton} onPress={onComment}>
+          <Ionicons name="chatbubble-outline" size={28} color="white" />
+        </TouchableOpacity>
+
+        {/* Share button */}
+        <TouchableOpacity style={styles.controlButton} onPress={onShare}>
+          <Ionicons name="arrow-redo-outline" size={28} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -191,6 +287,25 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     width: 100,
     height: 100,
+  },
+  doubleTapHeart: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'none',
+  },
+  muteIndicator: {
+    position: 'absolute',
+    top: '45%',
+    left: '45%',
+    pointerEvents: 'none',
+  },
+  muteIndicatorContainer: {
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   controls: {
     position: 'absolute',

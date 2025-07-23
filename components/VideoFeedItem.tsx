@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from './VideoPlayer';
+import CommentModal from './CommentModal';
+import ShareModal from './ShareModal';
 import { VideoData } from '../data/videos';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -19,6 +21,7 @@ interface VideoFeedItemProps {
   isMuted: boolean;
   onMuteToggle: () => void;
   onLike: (videoId: string) => void;
+  onFollow: (userId: string) => void;
 }
 
 const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
@@ -27,7 +30,11 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
   isMuted,
   onMuteToggle,
   onLike,
+  onFollow,
 }) => {
+  const [showComments, setShowComments] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+
   const formatNumber = (num: number): string => {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';
@@ -42,6 +49,18 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
     onLike(video.id);
   };
 
+  const handleComment = () => {
+    setShowComments(true);
+  };
+
+  const handleShare = () => {
+    setShowShareModal(true);
+  };
+
+  const handleFollow = () => {
+    onFollow(video.userId);
+  };
+
   return (
     <View style={styles.container}>
       <VideoPlayer
@@ -51,6 +70,8 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
         onMuteToggle={onMuteToggle}
         onLike={handleLike}
         isLiked={video.isLiked}
+        onComment={handleComment}
+        onShare={handleShare}
       />
       
       {/* Video Info Overlay */}
@@ -77,7 +98,7 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
           {/* Profile image with follow button */}
           <View style={styles.profileContainer}>
             <Image source={{ uri: video.avatar }} style={styles.profileImage} />
-            <TouchableOpacity style={styles.followButton}>
+            <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
               <Ionicons name="add" size={16} color="white" />
             </TouchableOpacity>
           </View>
@@ -95,7 +116,7 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
           </TouchableOpacity>
 
           {/* Comment button */}
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleComment}>
             <Ionicons name="chatbubble-outline" size={30} color="white" />
             <Text style={styles.actionText}>
               {formatNumber(video.comments)}
@@ -103,7 +124,7 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
           </TouchableOpacity>
 
           {/* Share button */}
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
             <Ionicons name="arrow-redo-outline" size={30} color="white" />
             <Text style={styles.actionText}>
               {formatNumber(video.shares)}
@@ -116,6 +137,23 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Comment Modal */}
+      <CommentModal
+        visible={showComments}
+        onClose={() => setShowComments(false)}
+        videoId={video.id}
+        videoAuthor={video.username}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        visible={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        videoId={video.id}
+        videoAuthor={video.username}
+        videoDescription={video.title}
+      />
     </View>
   );
 };

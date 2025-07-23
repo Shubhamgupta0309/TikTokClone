@@ -133,6 +133,37 @@ export default function HomeScreen() {
     }
   };
 
+  const handleFollow = async (userId: string) => {
+    if (!user) {
+      Alert.alert('Login Required', 'Please login to follow users');
+      return;
+    }
+
+    try {
+      const userDoc = doc(db, 'users', user.uid);
+      const userSnapshot = await getDoc(userDoc);
+      const userData = userSnapshot.data();
+      const following = userData?.following || [];
+
+      if (following.includes(userId)) {
+        // Unfollow
+        await updateDoc(userDoc, {
+          following: arrayRemove(userId),
+        });
+        Alert.alert('Unfollowed', 'You are no longer following this user');
+      } else {
+        // Follow
+        await updateDoc(userDoc, {
+          following: arrayUnion(userId),
+        });
+        Alert.alert('Following', 'You are now following this user!');
+      }
+    } catch (error) {
+      console.error('Error updating follow status:', error);
+      Alert.alert('Error', 'Failed to update follow status');
+    }
+  };
+
   const renderItem = ({ item, index }: { item: VideoData; index: number }) => (
     <VideoFeedItem
       video={item}
@@ -140,6 +171,7 @@ export default function HomeScreen() {
       isMuted={isMuted}
       onMuteToggle={handleMuteToggle}
       onLike={handleLike}
+      onFollow={handleFollow}
     />
   );
 

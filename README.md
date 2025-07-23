@@ -1,6 +1,23 @@
 # TikTok Clone - React Native Expo App
 
-A TikTok-like vertical video feed app built with React Native, Expo, and Firebase.
+A TikTok-like vertical video feed app built with React Native, Ex## Current Features (Phase 3 Complete)
+
+- **Multiple Authentication Options**: Google Sign-in and Email/Password
+- **User Profile Management**: User data stored and retrieved from Firestore
+- **Vertical Video Feed**: TikTok-style infinite scrolling video feed
+- **Video Player**: Full-screen video playback with expo-av
+- **Auto-play**: Videos auto-play when in view, pause when not
+- **Enhanced Like System**: Interactive like button with real-time updates and heart animations
+- **Double-tap to Like**: Double-tap anywhere on video to like with animated heart
+- **Comment System**: Real-time comment system with Firestore integration
+- **Share Functionality**: Native sharing capabilities with multiple options
+- **Follow/Unfollow**: User follow system with Firestore persistence
+- **Mute Controls**: Visual mute/unmute toggle with indicator feedback
+- **Progress Indicators**: Visual progress bars for video playback
+- **Loading States**: Smooth loading animations and transitions
+- **Pull-to-Refresh**: Refresh video feed with pull gesture
+- **Navigation**: 5-tab navigation (Home, Discover, Upload, Notifications, Profile)
+- **Responsive Design**: Works seamlessly on both iOS and Android devicesase.
 
 ## Development Phases
 
@@ -28,17 +45,17 @@ A TikTok-like vertical video feed app built with React Native, Expo, and Firebas
 - [x] Like notification system
 - [x] Enhanced video overlay with metadata
 
-### Phase 3: Video Interactions (Next)
+### Phase 3: Video Interactions ✅ (Complete)
 
-- [ ] Enhanced like functionality with heart animation
-- [ ] Comment system with real-time updates
-- [ ] Share functionality with native sharing
-- [ ] Mute/unmute toggle with visual feedback
-- [ ] Video progress controls
-- [ ] Double-tap to like gesture
-- [ ] Follow/unfollow functionality
+- [x] Enhanced like functionality with heart animation
+- [x] Comment system with real-time updates
+- [x] Share functionality with native sharing
+- [x] Mute/unmute toggle with visual feedback
+- [x] Video progress controls
+- [x] Double-tap to like gesture
+- [x] Follow/unfollow functionality
 
-### Phase 4: Social Features
+### Phase 4: Social Features (Next)
 
 - [ ] Comments system
 - [ ] Share functionality
