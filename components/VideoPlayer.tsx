@@ -38,6 +38,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
   const videoRef = useRef<Video>(null);
   const scale = useSharedValue(1);
 
@@ -77,6 +79,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     transform: [{ scale: scale.value }],
   }));
 
+  const onPlaybackStatusUpdate = (status: any) => {
+    if (status.isLoaded) {
+      setProgress(status.positionMillis || 0);
+      setDuration(status.durationMillis || 0);
+    }
+  };
+
+  const progressPercentage = duration > 0 ? (progress / duration) * 100 : 0;
+
   return (
     <View style={styles.container}>
       <Pressable style={styles.videoContainer} onPress={handlePlayPause}>
@@ -90,6 +101,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           shouldPlay={isVisible}
           onLoad={() => setIsLoading(false)}
           onError={(error) => console.error('Video error:', error)}
+          onPlaybackStatusUpdate={onPlaybackStatusUpdate}
         />
         
         {/* Loading indicator */}
@@ -129,6 +141,20 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </Animated.View>
         </TouchableOpacity>
       </View>
+
+      {/* Progress bar */}
+      {isVisible && !isLoading && (
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View 
+              style={[
+                styles.progressFill, 
+                { width: `${progressPercentage}%` }
+              ]} 
+            />
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -180,6 +206,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 8,
+  },
+  progressContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  progressBar: {
+    height: 2,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 1,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#ff3040',
+    borderRadius: 1,
   },
 });
 

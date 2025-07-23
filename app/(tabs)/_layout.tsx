@@ -48,6 +48,51 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="discover"
+        options={{
+          title: 'Discover',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons 
+              name={focused ? 'search' : 'search-outline'} 
+              size={24} 
+              color={color} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="upload"
+        options={{
+          title: '',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons 
+              name="add" 
+              size={32} 
+              color="white"
+              style={{
+                backgroundColor: '#ff3040',
+                borderRadius: 8,
+                padding: 8,
+                marginBottom: 4,
+              }}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Inbox',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons 
+              name={focused ? 'heart' : 'heart-outline'} 
+              size={24} 
+              color={color} 
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',

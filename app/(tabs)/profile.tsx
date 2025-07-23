@@ -66,7 +66,10 @@ export default function ProfileScreen() {
         </View>
 
         <Text style={styles.phaseText}>
-          Phase 1: Basic Profile ✅
+          Phase 1: Authentication ✅
+        </Text>
+        <Text style={styles.phaseText}>
+          Phase 2: Video Feed Foundation ✅
         </Text>
       </View>
     </SafeAreaView>

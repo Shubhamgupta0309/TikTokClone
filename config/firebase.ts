@@ -3,14 +3,14 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // Your Firebase configuration
-// Replace these with your actual Firebase config values
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCAaOs5CPjuRHjpS1c3HrvSWRQXIKKlhVU",
+  authDomain: "tiktokclone-0001.firebaseapp.com",
+  projectId: "tiktokclone-0001",
+  storageBucket: "tiktokclone-0001.firebasestorage.app",
+  messagingSenderId: "223843041370",
+  appId: "1:223843041370:web:a8c4ed4872e94c6fc15863",
+  measurementId: "G-C08BBCC8JK"
 };
 
 // Initialize Firebase

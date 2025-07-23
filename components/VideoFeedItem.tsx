@@ -60,8 +60,16 @@ const VideoFeedItem: React.FC<VideoFeedItemProps> = ({
           <View style={styles.userInfo}>
             <Image source={{ uri: video.avatar }} style={styles.avatar} />
             <Text style={styles.username}>@{video.username}</Text>
+            <View style={styles.verifiedBadge}>
+              <Ionicons name="checkmark-circle" size={16} color="#4285f4" />
+            </View>
           </View>
           <Text style={styles.title}>{video.title}</Text>
+          <View style={styles.videoMeta}>
+            <Text style={styles.metaText}>
+              🎵 Original sound - {video.username}
+            </Text>
+          </View>
         </View>
 
         {/* Right side - Action buttons */}
@@ -190,6 +198,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
     fontWeight: '600',
+  },
+  verifiedBadge: {
+    marginLeft: 6,
+  },
+  videoMeta: {
+    marginTop: 8,
+  },
+  metaText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 });
 
