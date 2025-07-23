@@ -224,7 +224,7 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.phaseContainer}>
-        <Text style={styles.phaseText}>Phase 4: Enhanced User Profiles 🎭</Text>
+        <Text style={styles.phaseText}>Phase 5: Enhanced User Profiles 🎭</Text>
       </View>
     </SafeAreaView>
   );

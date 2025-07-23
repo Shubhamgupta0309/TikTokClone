@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { sampleVideos, VideoData } from '@/data/videos';
@@ -29,6 +30,13 @@ interface SearchResult {
   videos: VideoData[];
 }
 
+interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+}
+
 const { width } = Dimensions.get('window');
 const videoWidth = (width - 6) / 3; // 3 columns with 2px gaps
 
@@ -43,6 +51,8 @@ export default function DiscoveryScreen() {
   const [featuredUsers, setFeaturedUsers] = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState<'top' | 'users' | 'videos' | 'hashtags'>('top');
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [trendingVideos, setTrendingVideos] = useState<VideoData[]>([]);
 
   // Mock data - in real app this would come from Firebase
   const mockUsers: User[] = [
@@ -93,10 +103,27 @@ export default function DiscoveryScreen() {
     '#sports',
   ];
 
+  const categories: Category[] = [
+    { id: 'trending', name: 'Trending', icon: 'trending-up', color: '#ff3040' },
+    { id: 'dance', name: 'Dance', icon: 'musical-notes', color: '#8B5CF6' },
+    { id: 'comedy', name: 'Comedy', icon: 'happy', color: '#F59E0B' },
+    { id: 'food', name: 'Food', icon: 'restaurant', color: '#EF4444' },
+    { id: 'travel', name: 'Travel', icon: 'airplane', color: '#3B82F6' },
+    { id: 'fashion', name: 'Fashion', icon: 'shirt', color: '#EC4899' },
+    { id: 'pets', name: 'Pets', icon: 'paw', color: '#10B981' },
+    { id: 'sports', name: 'Sports', icon: 'basketball', color: '#F97316' },
+  ];
+
   useEffect(() => {
     // Initialize trending content
     setTrendingHashtags(mockHashtags.slice(0, 6));
     setFeaturedUsers(mockUsers.slice(0, 3));
+    
+    // Set trending videos (most liked videos)
+    const sortedVideos = [...sampleVideos]
+      .sort((a, b) => b.likes - a.likes)
+      .slice(0, 12);
+    setTrendingVideos(sortedVideos);
   }, []);
 
   useEffect(() => {
@@ -124,7 +151,7 @@ export default function DiscoveryScreen() {
       hashtag.toLowerCase().includes(lowercaseQuery)
     );
 
-    // Search videos (by title)
+    // Search videos (by title and username)
     const filteredVideos = sampleVideos.filter(
       (video: VideoData) =>
         video.title.toLowerCase().includes(lowercaseQuery) ||
@@ -138,6 +165,49 @@ export default function DiscoveryScreen() {
     });
   };
 
+  const filterByCategory = (categoryId: string) => {
+    if (selectedCategory === categoryId) {
+      setSelectedCategory(null);
+      setTrendingVideos([...sampleVideos].sort((a, b) => b.likes - a.likes).slice(0, 12));
+    } else {
+      setSelectedCategory(categoryId);
+      
+      // Filter videos by category (mock implementation)
+      let filteredVideos: VideoData[] = [];
+      
+      switch (categoryId) {
+        case 'trending':
+          filteredVideos = [...sampleVideos].sort((a, b) => b.likes - a.likes);
+          break;
+        case 'dance':
+          filteredVideos = sampleVideos.filter(v => 
+            v.title.toLowerCase().includes('dance') || 
+            v.username.toLowerCase().includes('dance')
+          );
+          break;
+        case 'comedy':
+          filteredVideos = sampleVideos.filter(v => 
+            v.title.toLowerCase().includes('funny') || 
+            v.title.toLowerCase().includes('comedy') ||
+            v.username.toLowerCase().includes('comedy')
+          );
+          break;
+        case 'food':
+          filteredVideos = sampleVideos.filter(v => 
+            v.title.toLowerCase().includes('food') ||
+            v.title.toLowerCase().includes('recipe') ||
+            v.title.toLowerCase().includes('cooking')
+          );
+          break;
+        default:
+          // For other categories, show random subset
+          filteredVideos = sampleVideos.filter((_, index) => index % 3 === 0);
+      }
+      
+      setTrendingVideos(filteredVideos.slice(0, 12));
+    }
+  };
+
   const formatNumber = (num: number): string => {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';
@@ -147,6 +217,28 @@ export default function DiscoveryScreen() {
     }
     return num.toString();
   };
+
+  const renderCategoryItem = ({ item }: { item: Category }) => (
+    <TouchableOpacity
+      style={[
+        styles.categoryItem,
+        selectedCategory === item.id && { backgroundColor: item.color }
+      ]}
+      onPress={() => filterByCategory(item.id)}
+    >
+      <Ionicons 
+        name={item.icon as any} 
+        size={20} 
+        color={selectedCategory === item.id ? 'white' : item.color} 
+      />
+      <Text style={[
+        styles.categoryText,
+        selectedCategory === item.id && { color: 'white' }
+      ]}>
+        {item.name}
+      </Text>
+    </TouchableOpacity>
+  );
 
   const renderUserItem = ({ item }: { item: User }) => (
     <TouchableOpacity style={styles.userItem}>
@@ -182,7 +274,13 @@ export default function DiscoveryScreen() {
   );
 
   const renderHashtagItem = ({ item }: { item: string }) => (
-    <TouchableOpacity style={styles.hashtagItem}>
+    <TouchableOpacity 
+      style={styles.hashtagItem}
+      onPress={() => {
+        setSearchQuery(item);
+        setIsSearching(true);
+      }}
+    >
       <View style={styles.hashtagIcon}>
         <Text style={styles.hashtagSymbol}>#</Text>
       </View>
@@ -320,12 +418,32 @@ export default function DiscoveryScreen() {
         </>
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {/* Categories */}
+          <View style={styles.categoriesContainer}>
+            <Text style={styles.categoriesTitle}>Categories</Text>
+            <FlatList
+              data={categories}
+              renderItem={renderCategoryItem}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.categoriesList}
+            />
+          </View>
+
           {/* Trending Hashtags */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Trending</Text>
             <View style={styles.hashtagsGrid}>
               {trendingHashtags.map((hashtag) => (
-                <TouchableOpacity key={hashtag} style={styles.trendingHashtag}>
+                <TouchableOpacity 
+                  key={hashtag} 
+                  style={styles.trendingHashtag}
+                  onPress={() => {
+                    setSearchQuery(hashtag);
+                    setIsSearching(true);
+                  }}
+                >
                   <Text style={styles.trendingHashtagText}>{hashtag}</Text>
                 </TouchableOpacity>
               ))}
@@ -342,11 +460,16 @@ export default function DiscoveryScreen() {
             ))}
           </View>
 
-          {/* Popular Videos Grid */}
+          {/* Trending/Filtered Videos */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Popular Videos</Text>
+            <Text style={styles.sectionTitle}>
+              {selectedCategory 
+                ? `${categories.find(c => c.id === selectedCategory)?.name} Videos`
+                : 'Trending Videos'
+              }
+            </Text>
             <FlatList
-              data={sampleVideos.slice(0, 9)}
+              data={trendingVideos}
               renderItem={renderVideoItem}
               keyExtractor={(item) => item.id}
               numColumns={3}
@@ -358,7 +481,7 @@ export default function DiscoveryScreen() {
       )}
 
       <View style={styles.phaseContainer}>
-        <Text style={styles.phaseText}>Phase 4: Enhanced Discovery 🔍</Text>
+        <Text style={styles.phaseText}>Phase 5: Enhanced Content Discovery �</Text>
       </View>
     </SafeAreaView>
   );
@@ -564,6 +687,35 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: '500',
+  },
+  categoriesContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  categoriesTitle: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  categoriesList: {
+    paddingVertical: 4,
+  },
+  categoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginRight: 12,
+    marginBottom: 8,
+  },
+  categoryText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8,
   },
   phaseContainer: {
     alignItems: 'center',

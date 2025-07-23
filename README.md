@@ -2,7 +2,8 @@
 
 A TikTok-like vertical video feed app built with React Native, ```bash
 npm start
-```
+
+````
 
 ## Tech Stack
 
@@ -45,7 +46,7 @@ npm start
 ### Phase 4: Enhanced User Profiles & Discovery ✅ (Complete)
 
 - [x] Enhanced user profiles with video grids and social stats
-- [x] Advanced user search and discovery features  
+- [x] Advanced user search and discovery features
 - [x] Comprehensive activity feed for notifications
 - [x] Trending hashtags and content discovery
 - [x] User recommendations and suggested follows
@@ -53,14 +54,18 @@ npm start
 - [x] Professional profile layout with tabs
 - [x] Popular video recommendations grid
 
-### Phase 5: Content Discovery & Upload (Next)
+### Phase 5: Content Discovery & Upload ✅ (Complete)
 
-- [ ] Discover tab with trending content
-- [ ] Search functionality
-- [ ] Hashtag support
-- [ ] Category filtering
+- [x] Enhanced discover tab with trending content
+- [x] Advanced search functionality with better filtering
+- [x] Hashtag support with trending indicators
+- [x] Category filtering for content discovery
+- [x] Enhanced upload screen with multiple options
+- [x] Coming soon indicators for future features
+- [x] Interactive category-based video filtering
+- [x] Improved trending video recommendations
 
-### Phase 6: Upload & Creation
+### Phase 6: Upload & Creation (Next)
 
 - [ ] Video recording with camera
 - [ ] Video upload from gallery
@@ -88,7 +93,7 @@ npm start
 ```bash
 git clone https://github.com/YourUsername/TikTokClone.git
 cd TikTokClone
-```
+````
 
 2. Install dependencies:
 
