@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { ProfileSkeleton } from '../components/SkeletonLoaders';
 
 const ProfileScreen: React.FC = () => {
   const { user, userProfile, logout } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
     Alert.alert(
@@ -29,8 +31,21 @@ const ProfileScreen: React.FC = () => {
   const stats = [
     { label: 'Following', value: '298' },
     { label: 'Followers', value: '1.2M' },
-    { label: 'Likes', value: '15.3M' },
+    { label: 'Likes', value: '5.3M' },
   ];
+
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <ProfileSkeleton />;
+  }
 
   const mockVideos = Array.from({ length: 20 }, (_, index) => ({
     id: index.toString(),

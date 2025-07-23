@@ -6,6 +6,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { AuthProvider } from '../contexts/AuthContext';
+import AppErrorBoundary from '../components/AppErrorBoundary';
+import PerformanceService from '../services/PerformanceService';
+import OfflineManager from '../services/OfflineManager';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -36,6 +39,17 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      // Initialize performance monitoring
+      PerformanceService.endTimer('appStart');
+      
+      // Initialize offline manager
+      OfflineManager.on('connected', () => {
+        console.log('App came back online');
+      });
+      
+      OfflineManager.on('disconnected', () => {
+        console.log('App went offline');
+      });
     }
   }, [loaded]);
 
@@ -44,9 +58,11 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <AppErrorBoundary>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </AppErrorBoundary>
   );
 }
 
